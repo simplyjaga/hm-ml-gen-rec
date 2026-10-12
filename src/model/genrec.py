@@ -4,7 +4,7 @@ from peft import LoraConfig, TaskType, get_peft_model
 from torch import nn
 from transformers import AutoModel
 
-from src.config import GenRecConfig
+from src.configs.model_config import GenRecConfig
 
 
 class HMGenRecModel(nn.Module):

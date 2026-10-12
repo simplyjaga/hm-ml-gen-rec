@@ -1,0 +1,32 @@
+program: scripts/train.py
+method: bayes
+metric:
+  name: val/map_at_12
+  goal: maximize
+parameters:
+  learning_rate:
+    distribution: log_uniform_values
+    min: 1e-5
+    max: 1e-3
+  lora_r:
+    values: [8, 16, 32]
+  lora_dropout:
+    values: [0.05, 0.1]
+  batch_size:
+    values: [4, 8]
+
+  # --- FIXED PARAMETERS FOR LOCAL TESTING ---
+  data_path:
+    value: "data/processed/train_sample.parquet"
+  epochs:
+    value: 1
+  max_train_steps:
+    value: 5
+  max_val_steps:
+    value: 2
+
+command:
+  - ${env}
+  - python
+  - ${program}
+  - ${args}

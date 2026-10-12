@@ -1,3 +1,4 @@
+# src/config.py
 from dataclasses import asdict, dataclass
 
 
@@ -18,6 +19,9 @@ class GenRecConfig:
     learning_rate: float = 2e-4
     epochs: int = 3
 
+    # Step Limits (-1 means full epoch / no limit)
+    max_train_steps: int = -1
+    max_val_steps: int = -1
+
     def to_wandb_dict(self) -> dict:
-        """Converts config to a dictionary for wandb.init()"""
         return asdict(self)

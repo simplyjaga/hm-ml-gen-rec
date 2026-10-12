@@ -5,7 +5,7 @@ import torch
 from torch.utils.data import Dataset
 from transformers import PreTrainedTokenizerBase
 
-from src.config import GenRecConfig
+from src.configs.model_config import GenRecConfig
 
 
 class HMSequenceDataset(Dataset):
