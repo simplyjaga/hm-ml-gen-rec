@@ -18,7 +18,7 @@ class HMGenRecModel(nn.Module):
         base_model = AutoModel.from_pretrained(
             config.backbone_name,
             trust_remote_code=True,
-            torch_dtype=torch.bfloat16 # Use bfloat16 to save memory
+            dtype=torch.bfloat16 # Use bfloat16 to save memory
         )
 
         # 2. Apply LoRA
@@ -65,6 +65,10 @@ class HMGenRecModel(nn.Module):
         # Matrix multiplication yields (batch_size, num_items) scores
         logits = torch.matmul(user_vectors, all_item_vectors.T)
 
-        loss = self.loss_fn(logits, target_idx)
+        # Only calculate loss if targets are provided (Training/Validation)
+        if target_idx is not None:
+            loss = self.loss_fn(logits, target_idx)
+        else:
+            loss = None
 
         return {"logits": logits, "loss": loss}
