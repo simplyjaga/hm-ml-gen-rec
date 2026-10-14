@@ -17,7 +17,7 @@ parameters:
 
   # --- FIXED PARAMETERS FOR LOCAL TESTING ---
   data_path:
-    value: "data/processed/train_sample.parquet"
+    value: "data/processed/train_full.parquet"
   epochs:
     value: 1
   max_train_steps:
