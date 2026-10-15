@@ -39,6 +39,16 @@ def train(cli_args=None):
     validation_start = last_date - pd.Timedelta(days=6)
     train_rows = rows[rows["target_date"] < validation_start].copy()
     val_rows = rows[rows["target_date"] >= validation_start].copy()
+    # Use contexts frozen strictly before validation_start, not each row's
+    # rolling context (which would leak purchases from earlier validation days).
+    required_context_cols = {"val_context_ids", "val_context_texts"}
+    if not required_context_cols.issubset(rows.columns):
+        raise ValueError(
+            "Prepared data lacks frozen validation contexts; rerun src.data.prep "
+            "from the updated branch."
+        )
+    val_rows["context_ids"] = val_rows["val_context_ids"]
+    val_rows["context_texts"] = val_rows["val_context_texts"]
     if train_rows.empty or val_rows.empty:
         raise ValueError("Chronological train/validation split is empty; check the prepared date range.")
 
