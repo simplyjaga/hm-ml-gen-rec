@@ -2,7 +2,7 @@ project: "hm_genrec"
 program: scripts/train.py
 method: bayes
 metric:
-  name: val/map_at_12
+  name: val/row_reciprocal_rank_at_12
   goal: maximize
 parameters:
   learning_rate:
@@ -14,17 +14,17 @@ parameters:
   lora_dropout:
     values: [0.05, 0.1]
 
-  # --- FIXED PARAMETERS FOR LOCAL TESTING ---
+  # --- Short initial Kaggle sweep budget; scale up after smoke test ---
   batch_size:
-    value: 24
+    value: 4
   data_path:
     value: "data/processed/train_full.parquet"
   epochs:
     value: 1
   max_train_steps:
-    value: 2000
+    value: 300
   max_val_steps:
-    value: 400
+    value: 100
 
 command:
   - ${env}
