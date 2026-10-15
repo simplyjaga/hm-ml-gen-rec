@@ -128,6 +128,26 @@ def main(args: argparse.Namespace):
     if sequences.empty:
         raise ValueError("No training sequences were generated; check the input dates.")
 
+    # Freeze each customer's validation context using purchases strictly before
+    # the final seven-day target window, so validation examples cannot see
+    # purchases made earlier in that same validation window.
+    validation_start = transactions["t_dat"].max().normalize() - pd.Timedelta(days=6)
+    history_before_cutoff = transactions[transactions["t_dat"] < validation_start].sort_values(
+        ["customer_id", "t_dat", "article_id"]
+    )
+    cutoff_contexts = (
+        history_before_cutoff.groupby("customer_id")["article_id"]
+        .apply(lambda values: values.astype(str).tolist()[-args.max_context:])
+        .to_dict()
+    )
+    sequences["val_context_ids"] = sequences["customer_id"].map(
+        lambda cid: cutoff_contexts.get(cid, [])
+    )
+    sequences["val_context_texts"] = sequences["val_context_ids"].apply(
+        lambda ids: "\\n-> ".join(article_map.get(item, "Unknown Item") for item in ids)
+    )
+    sequences["val_context_ids"] = sequences["val_context_ids"].apply(lambda ids: ",".join(ids))
+
     sequences["user_profile"] = sequences["customer_id"].map(customer_map).fillna("Unknown User")
     sequences["context_texts"] = sequences["context_ids"].apply(
         lambda ids: "\n-> ".join(article_map.get(item, "Unknown Item") for item in ids)
