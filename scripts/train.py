@@ -42,6 +42,15 @@ def train(cli_args=None):
     if train_rows.empty or val_rows.empty:
         raise ValueError("Chronological train/validation split is empty; check the prepared date range.")
 
+    required_context_cols = {"val_context_ids", "val_context_texts"}
+    if not required_context_cols.issubset(rows.columns):
+        raise ValueError(
+            "Prepared data lacks frozen validation contexts; rerun src.data.prep "
+            "from the updated branch."
+        )
+    val_rows["context_ids"] = val_rows["val_context_ids"]
+    val_rows["context_texts"] = val_rows["val_context_texts"]
+
     target2idx = {str(item): idx for idx, item in enumerate(train_rows["target_id"].astype(str).unique())}
     train_rows = train_rows[train_rows["target_id"].astype(str).isin(target2idx)].reset_index(drop=True)
     val_rows = val_rows[val_rows["target_id"].astype(str).isin(target2idx)].reset_index(drop=True)
